@@ -1,10 +1,8 @@
 <!DOCTYPE html>
 <html lang='en'>
-
 <head>
     <title>Annotator</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta charset='utf-8'>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
     <style>
@@ -112,8 +110,8 @@
         var relevance = [
             ["2", { "color": green, "colorB": greenB, "value": "Muito relevante" }],
             ["1", { "color": yellow, "colorB": yellowB, "value": "Parcialmente relevante" }],
-            ["0", { "color": red, "colorB": redB, "value": "Não relevante" }],
-            ["-2", { "color": black, "colorB": blackB, "value": "Conteúdo inacessível", "fontColor": gray }]
+            ["0", { "color": red, "colorB": redB, "value": "N&atilde;o relevante" }],
+            ["-2", { "color": black, "colorB": blackB, "value": "Conte&uacute;do inacess&iacute;vel", "fontColor": gray }]
         ]
 
         topic_index = 0;
@@ -296,6 +294,9 @@
             if (query_changed) {
                 queryHasChanged()
             }
+            
+            // hide the spinner after 10 seconds regardless of whether the iframe loads or not
+            setTimeout(() => { hideSpinner()}, 10000);
 
             iframe.onload = () => {
                 console.log("iframe loaded, hide")
@@ -592,7 +593,7 @@
             <h5 id="date-res" class="px-4"></h5>
         </div>
     </div>
-    <iframe id="iframe" src="" width="100%" class="border border-dark"></iframe>
+    <iframe id="iframe" src="" width="100%" class="border border-dark" seamless="seamless"></iframe>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
         crossorigin="anonymous"></script>
