@@ -388,8 +388,15 @@
 
             var iframe = document.getElementById("iframe");
 
+            try {
+                iframe.contentWindow.document.open() 
+                iframe.contentWindow.document.close()
+            } catch (e) {
+            }
+
+
             showSpinner()
-            iframe.src = "";
+            iframe.src = "about:blank";
             var key = getQuery();
 
             if (localStorage.getItem(key) != null) {
@@ -441,7 +448,7 @@
 
         }
 
-        function next() {
+        async function next() {
             result_index++;
             query_changed = false;
             var key = getQuery();
@@ -453,10 +460,10 @@
                     topic_index = 0;
                 }
             }
-            getResults();
+            await getResults();
         }
 
-        function previous() {
+        async function previous() {
             result_index--;
             query_changed = false;
             if (result_index < 0) {
@@ -467,7 +474,7 @@
                     topic_index = topics.length - 1;
                 }
             }
-            getResults();
+            await getResults();
         }
 
 
@@ -492,27 +499,27 @@
         window.onload = async () => {
 
             // keyboard shortcuts
-            document.addEventListener('keyup', function (event) {
+            document.addEventListener('keyup', async function (event) {
                 if (event.key === 'ArrowRight' || event.key === 'e') {
-                    next();
+                    await next();
                 } else if (event.key === 'ArrowLeft' || event.key === 'q') {
-                    previous();
+                    await previous();
                 } else if (event.key === 'w') {
                     var relevanceLocal = generateRelevance(2);
                     changeRelevance(relevanceLocal, relevanceLocal.id);
-                    next();
+                    await next();
                 } else if (event.key === 's') {
                     var relevanceLocal = generateRelevance(-2);
                     changeRelevance(relevanceLocal, relevanceLocal.id);
-                    next();
+                    await next();
                 } else if (event.key === 'd') {
                     var relevanceLocal = generateRelevance(1);
                     changeRelevance(relevanceLocal, relevanceLocal.id);
-                    next();
+                    await next();
                 } else if (event.key === 'a') {
                     var relevanceLocal = generateRelevance(0);
                     changeRelevance(relevanceLocal, relevanceLocal.id);
-                    next();
+                    await next();
                 } else if (event.key === 'Escape') {
                     hideQueryBanner();
                     hideSpinner();
@@ -542,26 +549,26 @@
 
 
             Array.from(elements).forEach(function (element) {
-                element.onclick = function () {
+                element.onclick = async function () {
                     var relevance = generateRelevance(parseInt(element.value));
                     changeRelevance(relevance, relevance.id);
-                    next();
+                    await next();
                 }
             })
 
             elements = document.getElementsByClassName("next")
 
             Array.from(elements).forEach(function (element) {
-                element.onclick = function () {
-                    next();
+                element.onclick = async function () {
+                    await next();
                 }
             })
 
             elements = document.getElementsByClassName("previous")
 
             Array.from(elements).forEach(function (element) {
-                element.onclick = function () {
-                    previous();
+                element.onclick = async function () {
+                    await previous();
                 }
             })
 
