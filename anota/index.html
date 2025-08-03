@@ -18,12 +18,10 @@
         }
 
         /* Make the iframe fill the entire viewport */
-        iframe {
+        #arquivo-iframe {
             display: block;
             width: 100%;
             height: 100vh;
-            /* 100% of the viewport height */
-            /* Remove default iframe border */
         }
 
         .spinner-overlay {
@@ -43,8 +41,8 @@
 
         /* Spinner animation */
         .spinner {
-            width: 50px;
-            height: 50px;
+            width: 25px;
+            height: 25px;
             border: 5px solid #f3f3f3;
             border-top: 5px solid #3498db;
             border-radius: 50%;
@@ -139,17 +137,27 @@
         }
 
 
-        function hideSpinner() {
+        function hideOverlaySpinner() {
             document.getElementById('spinner').classList.add('d-none');
         }
 
+        function hideLoadedSpinner() {
+            document.getElementById('spinner-load').classList.add('d-none');
+        }
+
         // Function to show the spinner (can be called when needed)
-        function showSpinner() {
+        function showSpinners() {
             document.getElementById('spinner').classList.remove('d-none');
+            document.getElementById('spinner-load').classList.remove('d-none');
         }
 
         function queryHasChanged() {
             document.getElementById('query-change').classList.remove('d-none');
+            document.getElementById('query-banner').innerHTML = "A carregar resultados para a pesquisa...";
+            document.getElementById('subquery-banner').innerHTML = "";
+            document.getElementById('date-banner').innerHTML = "";
+            document.getElementById('query-button').classList.add('d-none');
+
         }
 
         function hideQueryBanner() {
@@ -309,18 +317,17 @@
 
             var query = getQuery();
             // set iframe to the archived url
-            var iframe = document.getElementById("iframe");
-
-            if (query_changed) {
-                queryHasChanged()
-            }
+            var iframe = document.getElementById("arquivo-iframe");
 
             // hide the spinner after 10 seconds regardless of whether the iframe loads or not
-            setTimeout(() => { hideSpinner() }, 10000);
+            setTimeout(() => {
+                hideOverlaySpinner()
+            }, 10000);
 
             iframe.onload = () => {
                 console.log("iframe loaded, hide")
-                hideSpinner()
+                hideOverlaySpinner();
+                hideLoadedSpinner();
             }
             iframe.src = iframeURL;
 
@@ -337,6 +344,7 @@
             document.getElementById("query-banner").innerHTML = topics[topic_index][0];
             document.getElementById("subquery-banner").innerHTML = topics[topic_index][2];
             document.getElementById("date-banner").innerHTML = getDatePretty();
+            document.getElementById('query-button').classList.remove('d-none');
 
             var key = result.tstamp + "/" + encodeURIComponent(result.originalURL);
             let results = JSON.parse(window.localStorage.getItem('annotations'));
@@ -386,7 +394,7 @@
         async function getResults() {
             document.body.style.backgroundColor = "white";
 
-            var iframe = document.getElementById("iframe");
+            var iframe = document.getElementById("arquivo-iframe");
 
             try {
                 iframe.contentWindow.document.open() 
@@ -395,7 +403,7 @@
             }
 
 
-            showSpinner()
+            showSpinners()
             iframe.src = "about:blank";
             var key = getQuery();
 
@@ -460,6 +468,9 @@
                     topic_index = 0;
                 }
             }
+            if (query_changed) {
+                queryHasChanged();
+            }
             await getResults();
         }
 
@@ -473,6 +484,9 @@
                 if (topic_index < 0) {
                     topic_index = topics.length - 1;
                 }
+            }
+            if (query_changed) {
+                queryHasChanged();
             }
             await getResults();
         }
@@ -593,16 +607,16 @@
         <div class="query-change d-flex flex-column" id="query-change">
             <h1 id="query-change-title">Nova pesquisa</h1>
             <h2 id="query-banner">
-                <div class="spinner"></div>
+                A carregar resultados para a pesquisa...
             </h2>
             <h3 id="subquery-banner"></h3>
             <h4 id="date-banner"></h4>
-            <button class="btn btn-light btn-lg" id="query-button" onclick="hideQueryBanner()">OK</button>
+            <button class="btn btn-light btn-lg d-none" id="query-button" onclick="hideQueryBanner()">OK</button>
         </div>
     </div>
 
-    <div class="border border-dark" id="header">
-        <div class="d-flex d-flex-column justify-content-center align-text-bottom pt-3" id="header">
+    <div class="border border-dark">
+        <div class="d-flex d-flex-column justify-content-center align-text-bottom pt-3">
             <h4 class="px-3" id="query"></h4>
             <h4 class="px-3" id="subquery"></h4>
             <h4 class="px-3" id="date"></h4>
@@ -615,12 +629,13 @@
         <p>
 
         <div id="result" class="d-flex d-flex-column justify-content-between align-text-bottom">
+            <h5><div class="spinner" id="spinner-load"></div></h5>
             <h5 id="title" class="px-4"></h5>
             <h5 id="url" class="px-4"></h5>
             <h5 id="date-res" class="px-4"></h5>
         </div>
     </div>
-    <iframe id="iframe" src="" width="100%" class="border border-dark" seamless="seamless"></iframe>
+    <iframe id="arquivo-iframe" src="" class="border border-dark"></iframe>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
         crossorigin="anonymous"></script>
