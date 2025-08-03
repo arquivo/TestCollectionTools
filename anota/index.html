@@ -263,6 +263,10 @@
                 });
             };
         }
+        function resolveUrl(relativeUrl) {
+            return new URL(relativeUrl, window.location.href).href;
+        }
+
         function showData(data) {
             // get the first result
             if (result_index == -1) {
@@ -277,7 +281,7 @@
             // replace all but the first two slashes with a single slash
             var url = result.linkToNoFrame.replace("http://", "").replace("https://", "");
             url = url.replace("//", "/");
-            var iframeURL = "//" + url;
+            var iframeURL = resolveUrl("//" + url);
             url = "http://" + url;
 
             var ourl = result.originalURL;
