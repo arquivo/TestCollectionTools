@@ -325,6 +325,7 @@
             // set iframe to the archived url
             var iframe = document.getElementById("arquivo-iframe");
 
+
             // hide the spinner after 10 seconds regardless of whether the iframe loads or not
             setTimeout(() => {
                 hideOverlaySpinner()
@@ -627,7 +628,9 @@
         </div>
         <div id="relevanceButtons" class="d-flex d-flex-column justify-content-center align-text-bottom">
             <button id="export" class="btn btn-light btn-lg export">Exportar</button>
+            <a id="send" class="btn btn-light btn-lg send" href="https://docs.google.com/forms/d/e/1FAIpQLSeRsCSCbYKtYkCyrj6PLDIea1QerC6V97gcmy1pPh77s70GSQ/viewform?usp=header">Enviar</a>
             <button id="previous" class="btn btn-light btn-lg previous">Anterior</button>
+            <button id="previous" class="btn btn-light btn-lg previous">Seguinte</button>
         </div>
 
         <p>
@@ -639,7 +642,7 @@
             <h5 id="date-res" class="px-4"></h5>
         </div>
     </div>
-    <iframe id="arquivo-iframe" sandbox="allow-scripts allow-forms allow-pointer-lock allow-same-origin" src="" class="border border-dark"></iframe>
+    <iframe id="arquivo-iframe" src="" class="border border-dark"></iframe>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
         crossorigin="anonymous"></script>
