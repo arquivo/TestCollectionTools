@@ -289,8 +289,14 @@
             // Add http:// protocol if not present in the original URL
             const fullOriginalUrl = originalUrl.startsWith('http') ? originalUrl : `http://${originalUrl}`;
 
+
             // Construct the wayback format URL with the same domain
-            return `https://${domain}/wayback//${timestamp}mp_/${fullOriginalUrl}`;
+            var archiveURL = `https://${domain}/wayback//${timestamp}mp_/${fullOriginalUrl}`;
+            if (originalUrl.endsWith(".doc") || originalUrl.endsWith(".docx") || originalUrl.endsWith(".rtf") || originalUrl.endsWith(".odt")){
+                archiveURL = `https://view.officeapps.live.com/op/embed.aspx?src=${archiveURL}`
+            }
+
+            return archiveURL;
         }
 
         function resolveUrl(relativeUrl) {
@@ -417,13 +423,11 @@
                 var results = [];
                 for (var i = 0; i < methods.length; i++) {
                     let url = String.format(methods[i][1], topics[topic_index][0], topics[topic_index][3], topics[topic_index][4]);
-                    console.log("url", url);
                     await fetch(url, {
                         mode: 'cors',
                     })
                         .then(response => response.json())
                         .then(data1 => {
-                            console.log("data1", data1);
                             data = data1;
                             var result = data.response_items[result_index];
                             for (var i = 0; i < data.response_items.length; i++) {
@@ -635,7 +639,7 @@
             <h5 id="date-res" class="px-4"></h5>
         </div>
     </div>
-    <iframe id="arquivo-iframe" src="" class="border border-dark"></iframe>
+    <iframe id="arquivo-iframe" sandbox="allow-scripts allow-forms allow-pointer-lock allow-same-origin" src="" class="border border-dark"></iframe>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
         crossorigin="anonymous"></script>
