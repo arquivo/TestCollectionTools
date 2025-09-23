@@ -75,6 +75,22 @@
         }
     </style>
     <script>
+        function getMimeType(url) {
+            try {
+                const xhr = new XMLHttpRequest();
+                xhr.open('HEAD', url, false); // false makes it synchronous
+                xhr.send();
+                if (xhr.status === 200) {
+                    return xhr.getResponseHeader('Content-Type');
+                }
+                return false;
+            } catch (error) {
+                console.error('Error:', error);
+                return false;
+            }
+        }
+
+
         methods = [
             ["nutch", "/textsearchnutchwax?dedupField=site&dedupValue=1&maxItems=20&q={0}&from={1}&to={2}"],
             ["solr", "/textsearch?dedupField=title&dedupValue=1&maxItems=20&q={0}&from={1}&to={2}"],
@@ -273,6 +289,8 @@
             };
         }
 
+
+
         function convertArchiveUrl(noFrameUrl) {
             // Extract domain, timestamp and original URL from the noFrame format
             const regex = /https?:\/\/([^\/]+)\/noFrame\/replay\/(\d+)\/(.*)/;
@@ -292,8 +310,14 @@
 
             // Construct the wayback format URL with the same domain
             var archiveURL = `https://${domain}/wayback//${timestamp}mp_/${fullOriginalUrl}`;
-            if (originalUrl.endsWith(".doc") || originalUrl.endsWith(".docx") || originalUrl.endsWith(".rtf") || originalUrl.endsWith(".odt")){
+            var mimeType = getMimeType(archiveURL);
+            console.log(mimeType)
+            if (mimeType && (mimeType.startsWith("application/msword") || mimeType.startsWith("application/vnd.ms") || mimeType.startsWith("text/rtf") || mimeType.startsWith("text/richtext") || mimeType.startsWith("application/vnd.oasis.opendocument") || mimeType.startsWith("application/vnd.sun.xml_"))){
                 archiveURL = `https://view.officeapps.live.com/op/embed.aspx?src=${archiveURL}`
+            }
+
+            if (mimeType === 'application/pdf' || (mimeType && mimeType.startsWith('application/pdf'))){
+                archiveURL = `https://docs.google.com/gview?url=${archiveURL}&embedded=true`
             }
 
             return archiveURL;
@@ -630,7 +654,7 @@
             <button id="export" class="btn btn-light btn-lg export">Exportar</button>
             <a id="send" class="btn btn-light btn-lg send" href="https://docs.google.com/forms/d/e/1FAIpQLSeRsCSCbYKtYkCyrj6PLDIea1QerC6V97gcmy1pPh77s70GSQ/viewform?usp=header">Enviar</a>
             <button id="previous" class="btn btn-light btn-lg previous">Anterior</button>
-            <button id="previous" class="btn btn-light btn-lg previous">Seguinte</button>
+            <button id="next" class="btn btn-light btn-lg next">Seguinte</button>
         </div>
 
         <p>
@@ -642,7 +666,7 @@
             <h5 id="date-res" class="px-4"></h5>
         </div>
     </div>
-    <iframe id="arquivo-iframe" src="" class="border border-dark"></iframe>
+    <iframe id="arquivo-iframe" sandbox="allow-scripts allow-forms allow-pointer-lock allow-same-origin" src="" class="border border-dark"></iframe>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
         crossorigin="anonymous"></script>
