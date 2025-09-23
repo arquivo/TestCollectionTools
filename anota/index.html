@@ -311,8 +311,7 @@
             // Construct the wayback format URL with the same domain
             var archiveURL = `https://${domain}/wayback//${timestamp}mp_/${fullOriginalUrl}`;
             var mimeType = getMimeType(archiveURL);
-            console.log(mimeType)
-            if (mimeType && (mimeType.startsWith("application/msword") || mimeType.startsWith("application/vnd.ms") || mimeType.startsWith("text/rtf") || mimeType.startsWith("text/richtext") || mimeType.startsWith("application/vnd.oasis.opendocument") || mimeType.startsWith("application/vnd.sun.xml_"))){
+            if (mimeType && (mimeType.startsWith("application/msword") || mimeType.startsWith("application/vnd.ms") || mimeType.startsWith("text/rtf") || mimeType.startsWith("text/richtext") || mimeType.startsWith("application/vnd.oasis.opendocument") || mimeType.startsWith("application/vnd.sun.xml"))){
                 archiveURL = `https://view.officeapps.live.com/op/embed.aspx?src=${archiveURL}`
             }
 
