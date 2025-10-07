@@ -134,6 +134,25 @@
         result_count = 0;
         query_changed = true;
 
+        var shuffle = [];
+
+        function createOrGetShuffleArray() {
+            // check if shuffle exists in local storage
+            if (localStorage.getItem("shuffle") != null) {
+                shuffle = JSON.parse(localStorage.getItem("shuffle"));
+                if (shuffle.length == topics.length)
+                    return shuffle;
+            }
+            var shuffle = [];
+            for (var i = 0; i < topics.length; i++) {
+                shuffle.push(i);
+            }
+            // shuffle the array
+            shuffle.sort(() => Math.random() - 0.5);
+            localStorage.setItem("shuffle", JSON.stringify(shuffle));
+            return shuffle;
+        }
+
         async function getTopics() {
             var source = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTzWSDasy-Ra2Bmqaje3IO-hC7N0h2AB9ilOPZMk6-R-zwGEpEb1Nuo8yMsMRaBG4dlBRgLXqmpuNbW/pub?gid=0&single=true&output=tsv"
             return fetch(source, {
@@ -258,17 +277,6 @@
 
             window.localStorage.setItem('annotations', JSON.stringify(results))
         }
-        // if there is a topic index or result index in the url, set them
-        if (window.location.search) {
-            var urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('topic_index')) {
-                topic_index = urlParams.get('topic_index');
-            }
-            if (urlParams.has('result_index')) {
-                result_index = urlParams.get('result_index');
-            }
-        }
-
         // topics to search for
         // ["topic", "startDate", "endDate"]
 
@@ -328,7 +336,7 @@
 
         function showData(data) {
             // get the first result
-            if (result_index == -1) {
+            if (result_index == -1 || result_index >= data.response_items.length) {
                 result_index = data.response_items.length - 1;
             }
             result_count = data.response_items.length;
@@ -366,13 +374,13 @@
             document.getElementById("date-res").innerHTML = printDatePretty(date);
             document.getElementById("url").innerHTML = ourl;
 
-
-            document.getElementById("query").innerHTML = topics[topic_index][0];
-            document.getElementById("subquery").innerHTML = topics[topic_index][2];
+            var internal_topic_index = shuffle[topic_index];
+            document.getElementById("query").innerHTML = topics[internal_topic_index][0];
+            document.getElementById("subquery").innerHTML = topics[internal_topic_index][2];
             document.getElementById("date").innerHTML = getDatePretty();
 
-            document.getElementById("query-banner").innerHTML = topics[topic_index][0];
-            document.getElementById("subquery-banner").innerHTML = topics[topic_index][2];
+            document.getElementById("query-banner").innerHTML = topics[internal_topic_index][0];
+            document.getElementById("subquery-banner").innerHTML = topics[internal_topic_index][2];
             document.getElementById("date-banner").innerHTML = getDatePretty();
             document.getElementById('query-button').classList.remove('d-none');
 
@@ -393,23 +401,27 @@
 
 
             var url = new URL(window.location.href);
-            url.searchParams.set('topic_index', topic_index);
+            url.searchParams.set('topic_index', shuffle[topic_index]);
             url.searchParams.set('result_index', result_index);
             window.history.pushState({}, '', url);
         }
 
         function getQuery() {
-            var topic = topics[topic_index][0];
 
-            var startDate = topics[topic_index][3];
-            var endDate = topics[topic_index][4];
+            var internal_topic_index = shuffle[topic_index];
+            var topic = topics[internal_topic_index][0];
+
+            var startDate = topics[internal_topic_index][3];
+            var endDate = topics[internal_topic_index][4];
 
             return topic + " " + startDate + " " + endDate;
         }
 
         function getDatePretty() {
-            var startDate = topics[topic_index][3];
-            var endDate = topics[topic_index][4];
+
+            var internal_topic_index = shuffle[topic_index];
+            var startDate = topics[internal_topic_index][3];
+            var endDate = topics[internal_topic_index][4];
             return "Entre " + printDatePretty(startDate) + " e " + printDatePretty(endDate);
         }
 
@@ -437,6 +449,7 @@
             iframe.src = "about:blank";
             var key = getQuery();
 
+            var internal_topic_index = shuffle[topic_index];
             if (localStorage.getItem(key) != null) {
                 // get from local storage
                 var data = JSON.parse(localStorage.getItem(key));
@@ -446,7 +459,7 @@
                 var data = [];
                 var results = [];
                 for (var i = 0; i < methods.length; i++) {
-                    let url = String.format(methods[i][1], topics[topic_index][0], topics[topic_index][3], topics[topic_index][4]);
+                    let url = String.format(methods[i][1], topics[internal_topic_index][0], topics[internal_topic_index][3], topics[internal_topic_index][4]);
                     await fetch(url, {
                         mode: 'cors',
                     })
@@ -571,6 +584,25 @@
 
 
             await getTopics();
+            shuffle = createOrGetShuffleArray();
+
+            // if there is a topic index or result index in the url, set them
+            if (window.location.search) {
+                var urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.has('topic_index')) {
+                    var shuffled_topic_index = urlParams.get('topic_index');
+                    for (var i = 0; i < shuffle.length; i++) {
+                        if (shuffle[i] == shuffled_topic_index) {
+                            topic_index = i;
+                            console.log("Topic index set to: " + topic_index + " (shuffled: " + shuffled_topic_index + ")");
+                            break;
+                        }
+                    }
+                }
+                if (urlParams.has('result_index')) {
+                    result_index = urlParams.get('result_index');
+                }
+            }
 
 
             prepareAnnotator("page");
